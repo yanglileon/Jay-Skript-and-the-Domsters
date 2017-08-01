@@ -47,7 +47,7 @@ function addClass(element, value) {
 /**
  * 设置导航选中状态
  */
-function hightlightPage() {
+function highlightPage() {
     if (!document.getElementsByTagName) return false;
     if (!document.getElementById) return false;
     // 获取header标签组
@@ -71,4 +71,4 @@ function hightlightPage() {
 }
 
 // 添加选中状态函数
-addLoadEvent(hightlightPage);
+addLoadEvent(highlightPage);
