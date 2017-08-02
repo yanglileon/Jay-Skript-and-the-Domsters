@@ -84,3 +84,25 @@ article img {
 #contact header {
     background-image: url(../images/drummer.gif);
 }
+
+#slideshow {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    overflow: hidden;
+}
+
+#preview {
+    position: absolute;
+    border-width: 0;
+    outline-width: 0;
+}
+
+#frame {
+    position: absolute;
+    border-width: 0;
+    outline-width: 0;
+    top: 0;
+    left: 0;
+    z-index: 99;
+}
