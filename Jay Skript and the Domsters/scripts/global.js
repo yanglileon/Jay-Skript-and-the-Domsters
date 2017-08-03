@@ -165,6 +165,46 @@ function moveElement(elementID, final_x, final_y, interval) {
     elem.movement = setTimeout(repeat, interval);
 }
 
+/**
+ * 设置about页面内部链接点击事件
+ */
+function prepareInternalnav() {
+    if (!document.getElementById) return false;
+    if (!document.getElementsByTagName) return false;
+    var articles = document.getElementsByTagName("article");
+    if (articles.length == 0) return false;
+    var navs = articles[0].getElementsByTagName("nav");
+    if (navs.length == 0) return false;
+    var links = navs[0].getElementsByTagName("a");
+    if (links.length == 0) return false;
+    for (var i = 0; i < links.length; i++) {
+        var sectionId = links[i].getAttribute("href").split("#")[1]
+        if (!document.getElementById(sectionId)) continue;
+        document.getElementById(sectionId).style.display = "none";
+        links[i].destination = sectionId;
+        links[i].onclick = function () {
+            showSection(this.destination);
+            return false;
+        }
+    }
+}
+
+/**
+ * 设置显示section内容的函数
+ * @param {*} id 
+ */
+function showSection(id) {
+    var sections = document.getElementsByTagName("section");
+    for (var i = 0; i < sections.length; i++) {
+        if (sections[i].getAttribute("id") != id) {
+            sections[i].style.display = "none";
+        } else {
+            sections[i].style.display = "block";
+        }
+    }
+}
+
 // 添加选中状态函数
 addLoadEvent(highlightPage);
 addLoadEvent(prepareSlideshow);
+addLoadEvent(prepareInternalnav);
