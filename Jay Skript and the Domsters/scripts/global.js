@@ -204,7 +204,68 @@ function showSection(id) {
     }
 }
 
+/**
+ * 设置占位图和详情函数
+ */
+function preparePlaceholder() {
+    if (!document.getElementById) return false;
+    if (!document.getElementById("imagegallery")) return false;
+    if (!document.createElement) return false;
+    var imagegallery = document.getElementById("imagegallery");
+    var placeholder = document.createElement("img");
+    placeholder.setAttribute("id", "placeholder");
+    placeholder.setAttribute("src", "images/placeholder.gif");
+    placeholder.setAttribute("alt", "placeholder");
+    var description = document.createElement("p");
+    description.setAttribute("id", "description");
+    var title = document.createTextNode("description");
+    description.appendChild(title);
+    insertAfter(placeholder, imagegallery);
+    insertAfter(description, imagegallery);
+}
+
+/**
+ * 设置点击事件函数
+ */
+function prepareGallery() {
+    if (!document.getElementsByTagName) return false;
+    var imagegallery = document.getElementById("imagegallery");
+    var links = imagegallery.getElementsByTagName("a");
+    if (links.length == 0) return false;
+    for (var i = 0; i < links.length; i++) {
+        links[i].onclick = function () {
+            return !showPic(this);
+        }
+        links[i].lastChild.nodeValue = "";
+        var img = document.createElement("img");
+        var source = links[i].getAttribute("href");
+        var sources = source.split("/");
+        sources[2] = "thumbnail_" + sources[2];
+        img.setAttribute("alt", sources[2]);
+        source = sources.join("/");
+        img.setAttribute("src", source);
+        // console.log(img);
+        links[i].appendChild(img);
+    }
+}
+
+/**
+ * 图片显示在占位图函数
+ * @param {*} whichPic 
+ */
+function showPic(whichPic) {
+    var source = whichPic.getAttribute("href");
+    var placeholder = document.getElementById("placeholder");
+    placeholder.setAttribute("src", source);
+    var text = whichPic.getAttribute("title");
+    var description = document.getElementById("description");
+    description.lastChild.nodeValue = text ? text : "No details";
+    return true;
+}
+
 // 添加选中状态函数
 addLoadEvent(highlightPage);
 addLoadEvent(prepareSlideshow);
 addLoadEvent(prepareInternalnav);
+addLoadEvent(preparePlaceholder);
+addLoadEvent(prepareGallery);
