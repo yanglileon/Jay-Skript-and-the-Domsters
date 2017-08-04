@@ -110,3 +110,17 @@ article img {
 #imagegallery li {
     display: inline;
 }
+
+td {
+    padding: 8px 48px;
+}
+
+th {
+    color: #edc;
+    background-color: #455;
+}
+
+tr {
+    color: #223;
+    background-color: #eb6;
+}
