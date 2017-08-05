@@ -124,3 +124,15 @@ tr {
     color: #223;
     background-color: #eb6;
 }
+
+dl {
+    overflow: hidden;
+}
+
+dt {
+    float: left;
+}
+
+dd {
+    float: left;
+}

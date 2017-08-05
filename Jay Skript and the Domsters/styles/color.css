@@ -63,3 +63,11 @@ article img {
 #imagegallery a{
     background-color: transparent;
 }
+tr.odd td {
+    color: #223;
+    background-color: #ec8;
+}
+tr.highlight td {
+    color: #223;
+    background-color: #cba;
+}
