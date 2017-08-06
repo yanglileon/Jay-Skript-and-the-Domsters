@@ -245,7 +245,6 @@ function prepareGallery() {
         img.setAttribute("alt", sources[2]);
         source = sources.join("/");
         img.setAttribute("src", source);
-        // console.log(img);
         links[i].appendChild(img);
     }
 }
@@ -292,10 +291,10 @@ function highlightRows() {
     var rows = document.getElementsByTagName("tr");
     for (var i = 0; i < rows.length; i++) {
         rows[i].oldClassName = rows[i].className;
-        rows[i].onmouseover = function() {
+        rows[i].onmouseover = function () {
             addClass(this, "highlight");
         }
-        rows[i].onmouseout = function() {
+        rows[i].onmouseout = function () {
             this.className = this.oldClassName;
         }
     }
@@ -305,7 +304,6 @@ function highlightRows() {
  * 列表清单函数
  */
 function displayAbbreviations() {
-    console.log("1");
     if (!document.createElement || !document.createTextNode || !document.getElementsByTagName) return false;
     var abbreviations = document.getElementsByTagName("abbr");
     if (abbreviations.length < 1) return false;
@@ -340,6 +338,161 @@ function displayAbbreviations() {
     container.appendChild(dist);
 }
 
+/**
+ * 添加点击label聚焦到相关表单字段
+ */
+function focusLabels() {
+    if (!document.getElementsByTagName) return false;
+    var labels = document.getElementsByTagName("label");
+    for (var i = 0; i < labels.length; i++) {
+        if (!labels[i].getAttribute("for")) return false;
+        labels[i].onclick = function () {
+            var id = this.getAttribute("for");
+            if (!document.getElementById(id)) return false;
+            var element = document.getElementById(id);
+            element.focus();
+        }
+    }
+}
+
+/**
+ * 设置不支持HTML5的placeholder属性浏览器正常显示占位信息函数
+ * @param {*} whichForm 
+ */
+function resetFields(whichForm) {
+    if (Modernizr.input.placeholder) return false;
+    for (var i = 0; i < whichForm.elements.length; i++) {
+        var element = whichForm.elements[i];
+        if (element.type == "submit") continue;
+        var check = element.placeholder || element.getAttribute("placeholder");
+        if (!check) continue;
+        element.onfocus = function () {
+            var text = this.placeholder || this.getAttribute("placeholder");
+            if (this.value == text) {
+                this.className = "";
+                this.value = "";
+            }
+        }
+        element.onblur = function () {
+            if (this.value == "") {
+                this.className = "placeholder";
+                this.value = this.placeholder || this.getAttribute("placeholder");
+            }
+        }
+        element.onblur();
+    }
+}
+
+/**
+ * 判断输入框是否为空
+ * @param {*} field 
+ */
+function isField(field) {
+    if (field.value.replace(" ", "").length == 0) return false;
+    var placeholder = field.placeholder || field.getAttribute("placeholder");
+    return (field.value != placeholder);
+}
+
+/**
+ * 判断email简单格式函数
+ * @param {*} field 
+ */
+function isEmail(field) {
+    return (field.value.indexOf("@") != -1 && field.value.indexOf(".") != -1);
+}
+
+function validateForm(whichForm) {
+    for (var i = 0; i < whichForm.elements.length; i++) {
+        var element = whichForm.elements[i];
+        if (element.required == "required") {
+            if (!isField(element)) {
+                alert("Plese fill in the " + element.name + " field.");
+                return false;
+            }
+        }
+        if (element.type == "email") {
+            if (!isEmail(element)) {
+                alert("The " + element.name + " field must be a valid email address");
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+/**
+ * 准备forms的函数
+ */
+function prepareForms() {
+    for (var i = 0; i < document.forms.length; i++) {
+        var thisform = document.forms[i];
+        resetFields(thisform);
+        thisform.onsubmit = function () {
+            if (!validateForm(this)) return false;
+            var article = document.getElementsByTagName("article")[0];
+            if (submitFormWithAjax(this, article)) return false;
+            return true;
+        }
+    }
+}
+
+function getHTTPObject() {
+    if (typeof XMLHttpRequest == "undefined") {
+        XMLHttpRequest = function () {
+            try { return new ActiveXObject("Msxml2.XMLHTTP.6.0"); }
+                catch (e) { }
+            try { return new ActiveXObject("Msxml2.XMLHTTP.3.0"); }
+                catch (e) { }
+            try { return new ActiveXObject("Msxml2.XMLHTTP"); }
+                catch (e) { }
+            return false;
+        }
+    }
+    return new XMLHttpRequest();
+}
+
+function displayAjaxLoading(element) {
+    while (element.hasChildNodes()) {
+        element.removeChild(element.lastChild);
+    }
+    var content = document.createElement("img");
+    content.setAttribute("src", "images/loading.gif");
+    content.setAttribute("alt", "Loading...");
+    element.appendChild(content);
+}
+
+function submitFormWithAjax(whichForm, thetarget) {
+    var request = getHTTPObject();
+    if (!request) return false;
+    displayAjaxLoading(thetarget);
+    var dataParts = [];
+    var element;
+    for (var i = 0; i < whichForm.elements.length; i++) {
+        element = whichForm.elements[i];
+        dataParts[i] = element.name + '=' + encodeURIComponent(element.value);
+    }
+    var data = dataParts.join("&");
+    request.open('POST', whichForm.getAttribute("action"), true);
+    request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    request.onreadystatechange = function () {
+        if (request.readyState == 4) {
+            if (request.status == 200 || request.status == 0) {
+                var matches = request.responseText.match(/<article>([\s\S]+)<\/article>/);
+                console.log(matches.length);
+                if (matches.length > 0) {
+                    thetarget.innerHTML = matches[1];
+                } else {
+                    thetarget.innerHTML = '<p>Oops, there was an error. Sorry.</p>';
+                }
+            } else {
+                thetarget.innerHTML = '<p>' + request.statusText + '</p>';
+            }
+        }
+    }
+    request.send(data);
+    return true;
+}
+
 // 添加选中状态函数
 addLoadEvent(highlightPage);
 addLoadEvent(prepareSlideshow);
@@ -349,3 +502,4 @@ addLoadEvent(prepareGallery);
 addLoadEvent(stripeTables);
 addLoadEvent(highlightRows);
 addLoadEvent(displayAbbreviations);
+addLoadEvent(prepareForms);
